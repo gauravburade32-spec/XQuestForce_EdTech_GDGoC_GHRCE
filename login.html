@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Powered Learning Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Page Content -->
+        <div class="login-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Welcome Back!</h1>
+                <p class="description">Sign in to access your personalized learning assistant</p>
+            </header>
+
+            <!-- Login Card -->
+            <div class="card login-card">
+                <h2>Login</h2>
+                
+                <!-- Email Input -->
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+                <!-- Login Button -->
+                <button id="loginSubmitBtn" class="btn-login-submit">Login</button>
+
+                <!-- Info Note -->
+                <p class="login-note">
+                    <small>Note: This is a demo. Any email and password will work for now.</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Script - Handles login logic -->
+    <script src="auth.js"></script>
+</body>
+</html>
+

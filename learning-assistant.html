@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Powered Learning Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Logout Button -->
+        <div class="header-top">
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </div>
+
+        <!-- Main Heading Section -->
+        <header class="header">
+            <h1>AI Powered Learning Assistant</h1>
+            <p class="description">Get personalized explanations and learning tips powered by AI. Select your subject and level to start learning!</p>
+        </header>
+
+        <!-- Input Card -->
+        <div class="card input-card">
+            <h2>Customize Your Learning</h2>
+            
+            <!-- Subject Dropdown -->
+            <div class="form-group">
+                <label for="subject">Subject:</label>
+                <select id="subject" class="form-control">
+                    <option value="">-- Select Subject --</option>
+                    <option value="maths">Maths</option>
+                    <option value="physics">Physics</option>
+                    <option value="programming">Programming</option>
+                </select>
+            </div>
+
+            <!-- Level Dropdown -->
+            <div class="form-group">
+                <label for="level">Level:</label>
+                <select id="level" class="form-control">
+                    <option value="">-- Select Level --</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                </select>
+            </div>
+
+            <!-- Topic Input -->
+            <div class="form-group">
+                <label for="topic">Topic:</label>
+                <input type="text" id="topic" class="form-control" placeholder="e.g., Quadratic Equations, Newton's Laws, Variables">
+            </div>
+
+            <!-- Generate Button -->
+            <button id="generateBtn" class="btn-generate">Generate Explanation</button>
+        </div>
+
+        <!-- Output Card -->
+        <div class="card output-card" id="outputCard" style="display: none;">
+            <h2>Learning Content</h2>
+            
+            <!-- Loading Message -->
+            <div id="loadingMessage" class="loading">
+                <div class="spinner"></div>
+                <p>Generating with Gemini AI...</p>
+            </div>
+
+            <!-- AI Explanation Section -->
+            <div id="explanationSection" style="display: none;">
+                <div class="explanation-box">
+                    <h3>Explanation</h3>
+                    <div id="explanation" class="content-text"></div>
+                </div>
+
+                <!-- Learning Tips Section -->
+                <div class="tips-box">
+                    <h3>Learning Tips</h3>
+                    <ul id="tipsList" class="tips-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Script - Handles logout -->
+    <script src="auth.js"></script>
+    <!-- Learning Assistant Script -->
+    <script src="script.js"></script>
+</body>
+</html>
+

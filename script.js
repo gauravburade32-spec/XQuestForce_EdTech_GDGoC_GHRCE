@@ -1,0 +1,230 @@
+// ============================================
+// AI Powered Learning Assistant - JavaScript
+// ============================================
+// This script only runs on the learning assistant page (learning-assistant.html)
+
+// Get references to DOM elements
+const generateBtn = document.getElementById('generateBtn');
+const subjectSelect = document.getElementById('subject');
+const levelSelect = document.getElementById('level');
+const topicInput = document.getElementById('topic');
+const outputCard = document.getElementById('outputCard');
+const loadingMessage = document.getElementById('loadingMessage');
+const explanationSection = document.getElementById('explanationSection');
+const explanationDiv = document.getElementById('explanation');
+const tipsList = document.getElementById('tipsList');
+
+// Safety check - only proceed if all required elements exist
+if (!generateBtn || !subjectSelect || !levelSelect || !topicInput) {
+    console.warn('Learning assistant elements not found. This script should only run on learning-assistant.html');
+}
+
+// Sample AI responses - Different content based on subject and level
+// TODO: Replace this with actual Gemini API calls
+const sampleResponses = {
+    maths: {
+        beginner: {
+            explanation: "Quadratic equations are mathematical expressions where the highest power of the variable is 2. They follow the standard form: ax² + bx + c = 0, where 'a', 'b', and 'c' are numbers. For example, x² - 5x + 6 = 0 is a quadratic equation. These equations can have zero, one, or two solutions, which we can find using methods like factoring, completing the square, or the quadratic formula.",
+            tips: [
+                "Start by identifying if an equation is quadratic - look for the x² term.",
+                "Practice factoring simple quadratics before moving to complex ones.",
+                "Always check your answers by substituting them back into the original equation."
+            ]
+        },
+        intermediate: {
+            explanation: "Quadratic equations represent parabolas in coordinate geometry. The discriminant (b² - 4ac) determines the nature of roots: positive discriminant yields two real solutions, zero discriminant gives one repeated solution, and negative discriminant results in complex conjugate solutions. The vertex form y = a(x-h)² + k helps identify the parabola's vertex and axis of symmetry. Applications include projectile motion, optimization problems, and signal processing.",
+            tips: [
+                "Master the quadratic formula and understand how the discriminant affects solutions.",
+                "Learn to convert between standard, factored, and vertex forms.",
+                "Practice real-world applications to understand when quadratic equations are useful."
+            ]
+        }
+    },
+    physics: {
+        beginner: {
+            explanation: "Newton's Laws of Motion are three fundamental rules that describe how objects move. The First Law says that an object at rest stays at rest, and an object in motion stays in motion at constant speed, unless acted upon by a force. The Second Law states that force equals mass times acceleration (F = ma). The Third Law tells us that for every action, there is an equal and opposite reaction. These laws help us understand everything from a ball rolling on the ground to rockets launching into space!",
+            tips: [
+                "Visualize real-world examples - think about pushing a shopping cart or bouncing a ball.",
+                "Start with simple scenarios before tackling complex problems.",
+                "Remember that forces always come in pairs (action-reaction)."
+            ]
+        },
+        intermediate: {
+            explanation: "Newton's Laws of Motion form the foundation of classical mechanics. The First Law introduces the concept of inertia and establishes reference frames. The Second Law, F = ma, is a vector equation that relates net force to acceleration in specific coordinate systems. The Third Law reveals that forces are interactions between objects, not properties of single objects. In advanced applications, these laws integrate with conservation principles, leading to Lagrangian and Hamiltonian mechanics for more complex systems like planetary motion and quantum mechanics.",
+            tips: [
+                "Work with vector representations to handle multi-dimensional problems.",
+                "Apply Newton's Laws systematically: identify forces, draw free-body diagrams, then solve.",
+                "Connect these laws to conservation of energy and momentum for deeper understanding."
+            ]
+        }
+    },
+    programming: {
+        beginner: {
+            explanation: "Variables are like labeled boxes where we store information in programming. When you write 'let age = 25', you're creating a variable named 'age' and storing the number 25 in it. Variables can hold different types of data like numbers, text (strings), true/false values (booleans), and more. Think of variables as memory slots with names so you can easily find and use the information later. They're fundamental because they let programs remember and work with data!",
+            tips: [
+                "Choose clear, descriptive names for variables - 'userName' is better than 'x'.",
+                "Remember that variables are case-sensitive - 'Age' and 'age' are different.",
+                "Practice declaring variables and changing their values to understand how they work."
+            ]
+        },
+        intermediate: {
+            explanation: "Variables are memory locations with identifiers that hold values. In programming, variables have scope (global, local, block) and lifetime. Different languages handle variables differently: JavaScript uses 'let' and 'const' with block scoping, Python uses dynamic typing, while languages like C++ require explicit type declarations. Understanding variable scope prevents bugs, and proper naming conventions improve code readability. Advanced concepts include closures, where functions remember variables from their outer scope, and variable shadowing in nested scopes.",
+            tips: [
+                "Understand the difference between 'var', 'let', and 'const' in JavaScript.",
+                "Learn about variable hoisting and temporal dead zones.",
+                "Practice using variables in different scopes to prevent naming conflicts."
+            ]
+        }
+    }
+};
+
+// Generate a random delay between 1-2 seconds (1000-2000ms)
+function getRandomDelay() {
+    return Math.floor(Math.random() * 1000) + 1000; // Between 1000 and 2000ms
+}
+
+// Validate user input
+function validateInput() {
+    const subject = subjectSelect.value;
+    const level = levelSelect.value;
+    const topic = topicInput.value.trim();
+
+    if (!subject) {
+        alert('Please select a subject.');
+        return false;
+    }
+
+    if (!level) {
+        alert('Please select a level.');
+        return false;
+    }
+
+    if (!topic) {
+        alert('Please enter a topic.');
+        return false;
+    }
+
+    return true;
+}
+
+// Display the AI-generated explanation and tips
+function displayResponse(subject, level, topic) {
+    // Get the sample response based on subject and level
+    const response = sampleResponses[subject][level];
+
+    // Display the explanation
+    explanationDiv.innerHTML = `<strong>Topic: ${topic}</strong><br><br>${response.explanation}`;
+
+    // Clear previous tips
+    tipsList.innerHTML = '';
+
+    // Display the tips
+    response.tips.forEach(tip => {
+        const listItem = document.createElement('li');
+        listItem.textContent = tip;
+        tipsList.appendChild(listItem);
+    });
+
+    // Hide loading message and show explanation
+    loadingMessage.style.display = 'none';
+    explanationSection.style.display = 'block';
+}
+
+// ============================================
+// GEMINI API INTEGRATION POINT
+// ============================================
+// TODO: Replace the sample response logic with actual Gemini API calls
+//
+// Here's how you would integrate Gemini API:
+//
+// async function callGeminiAPI(subject, level, topic) {
+//     const API_KEY = 'YOUR_GEMINI_API_KEY'; // Store this securely
+//     const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + API_KEY;
+//     
+//     const prompt = `Generate a ${level} level explanation about ${topic} in ${subject}. 
+//                     Also provide 3 learning tips. Format the response as JSON with 'explanation' and 'tips' fields.`;
+//     
+//     try {
+//         const response = await fetch(API_URL, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({
+//                 contents: [{
+//                     parts: [{
+//                         text: prompt
+//                     }]
+//                 }]
+//             })
+//         });
+//         
+//         const data = await response.json();
+//         const generatedText = data.candidates[0].content.parts[0].text;
+//         
+//         // Parse the response and return explanation and tips
+//         return parseGeminiResponse(generatedText);
+//     } catch (error) {
+//         console.error('Error calling Gemini API:', error);
+//         throw error;
+//     }
+// }
+//
+// Then modify generateExplanation() to use:
+// const response = await callGeminiAPI(subject, level, topic);
+// displayResponse(response, topic);
+// ============================================
+
+// Main function to handle the generate button click
+async function generateExplanation() {
+    // Validate input before proceeding
+    if (!validateInput()) {
+        return;
+    }
+
+    // Get user selections
+    const subject = subjectSelect.value;
+    const level = levelSelect.value;
+    const topic = topicInput.value.trim();
+
+    // Show output card and loading message
+    outputCard.style.display = 'block';
+    loadingMessage.style.display = 'block';
+    explanationSection.style.display = 'none';
+
+    // Disable button during generation
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'Generating...';
+
+    // Simulate API call delay (1-2 seconds)
+    // In production, replace this with actual Gemini API call
+    const delay = getRandomDelay();
+    
+    setTimeout(() => {
+        // TODO: Replace this with actual Gemini API call
+        // For now, we're using sample responses
+        // const response = await callGeminiAPI(subject, level, topic);
+        // displayResponse(response, topic);
+        
+        // Using sample response for demonstration
+        displayResponse(subject, level, topic);
+
+        // Re-enable button
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate Explanation';
+    }, delay);
+}
+
+// Event Listener - Attach click handler to the generate button
+// Only initialize if we're on the learning assistant page
+if (generateBtn && subjectSelect && levelSelect && topicInput) {
+    generateBtn.addEventListener('click', generateExplanation);
+
+    // Optional: Allow Enter key in topic input to trigger generation
+    topicInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            generateExplanation();
+        }
+    });
+}
+
