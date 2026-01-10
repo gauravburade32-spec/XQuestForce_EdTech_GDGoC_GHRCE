@@ -8,14 +8,16 @@ const generateBtn = document.getElementById('generateBtn');
 const subjectSelect = document.getElementById('subject');
 const levelSelect = document.getElementById('level');
 const topicInput = document.getElementById('topic');
+const learningGoalSelect = document.getElementById('learningGoal');
 const outputCard = document.getElementById('outputCard');
 const loadingMessage = document.getElementById('loadingMessage');
 const explanationSection = document.getElementById('explanationSection');
-const explanationDiv = document.getElementById('explanation');
-const tipsList = document.getElementById('tipsList');
+const recommendedTopicsDiv = document.getElementById('recommendedTopics');
+const suggestedResourcesDiv = document.getElementById('suggestedResources');
+const studyPlanDiv = document.getElementById('studyPlan');
 
 // Safety check - only proceed if all required elements exist
-if (!generateBtn || !subjectSelect || !levelSelect || !topicInput) {
+if (!generateBtn || !subjectSelect || !levelSelect || !topicInput || !learningGoalSelect) {
     console.warn('Learning assistant elements not found. This script should only run on learning-assistant.html');
 }
 
@@ -107,27 +109,167 @@ function validateInput() {
     return true;
 }
 
-// Display the AI-generated explanation and tips
-function displayResponse(subject, level, topic) {
+// Display the AI-generated learning plan with three sections
+function displayResponse(subject, level, topic, learningGoal) {
     // Get the sample response based on subject and level
     const response = sampleResponses[subject][level];
+    
+    // Get learning goal label
+    const goalLabel = learningGoal ? learningGoalSelect.options[learningGoalSelect.selectedIndex].text : 'General Learning';
+    
+    // Recommended Topics Section
+    const topicsContent = `
+        <p><strong>Based on: ${topic} (${level} level)</strong></p>
+        <p>Here are the key topics you should focus on:</p>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+            <li>${topic} - Core concepts and fundamentals</li>
+            <li>Related foundational topics from ${subject}</li>
+            <li>Advanced applications and real-world examples</li>
+        </ul>
+        <p style="margin-top: 15px;">${response.explanation}</p>
+    `;
+    recommendedTopicsDiv.innerHTML = topicsContent;
 
-    // Display the explanation
-    explanationDiv.innerHTML = `<strong>Topic: ${topic}</strong><br><br>${response.explanation}`;
+    // Suggested Resources Section
+    const resourcesContent = `
+        <p>Recommended learning resources for your <strong>${goalLabel}</strong> goal:</p>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+            <li>Textbook chapters covering ${topic} fundamentals</li>
+            <li>Online video tutorials for ${subject} at ${level} level</li>
+            <li>Practice problems and exercises</li>
+            <li>Interactive simulations and visualizations</li>
+        </ul>
+    `;
+    suggestedResourcesDiv.innerHTML = resourcesContent;
 
-    // Clear previous tips
-    tipsList.innerHTML = '';
-
-    // Display the tips
-    response.tips.forEach(tip => {
-        const listItem = document.createElement('li');
-        listItem.textContent = tip;
-        tipsList.appendChild(listItem);
-    });
+    // Study Plan Section
+    const studyPlanContent = `
+        <p>Personalized study plan tailored for <strong>${goalLabel}</strong>:</p>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+            ${response.tips.map(tip => `<li style="margin-bottom: 10px;">${tip}</li>`).join('')}
+        </ul>
+        <p style="margin-top: 15px;"><strong>Weekly Schedule Recommendation:</strong></p>
+        <p>Spend 2-3 hours per week on ${topic}, with focused practice sessions and regular review.</p>
+    `;
+    studyPlanDiv.innerHTML = studyPlanContent;
 
     // Hide loading message and show explanation
     loadingMessage.style.display = 'none';
     explanationSection.style.display = 'block';
+}
+
+// ============================================
+// DOWNLOAD FUNCTIONALITY
+// ============================================
+
+// Get formatted text content from all sections
+function getLearningPlanContent() {
+    const topic = topicInput.value.trim();
+    const subject = subjectSelect.options[subjectSelect.selectedIndex].text;
+    const level = levelSelect.options[levelSelect.selectedIndex].text;
+    const learningGoal = learningGoalSelect.value 
+        ? learningGoalSelect.options[learningGoalSelect.selectedIndex].text 
+        : 'General Learning';
+
+    // Extract text content from each section (removing HTML tags)
+    const recommendedTopics = recommendedTopicsDiv.innerText || recommendedTopicsDiv.textContent;
+    const suggestedResources = suggestedResourcesDiv.innerText || suggestedResourcesDiv.textContent;
+    const studyPlan = studyPlanDiv.innerText || studyPlanDiv.textContent;
+
+    // Format the complete learning plan as text
+    const content = `
+AI POWERED LEARNING PLAN
+========================
+
+Subject: ${subject}
+Level: ${level}
+Topic: ${topic}
+Learning Goal: ${learningGoal}
+
+${'='.repeat(50)}
+
+RECOMMENDED TOPICS
+${'-'.repeat(50)}
+${recommendedTopics}
+
+${'='.repeat(50)}
+
+SUGGESTED RESOURCES
+${'-'.repeat(50)}
+${suggestedResources}
+
+${'='.repeat(50)}
+
+STUDY PLAN
+${'-'.repeat(50)}
+${studyPlan}
+
+${'='.repeat(50)}
+
+Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
+Generated by: AI Powered Learning Assistant
+`;
+
+    return content;
+}
+
+// Download as Text File
+function downloadAsText() {
+    try {
+        const content = getLearningPlanContent();
+        const topic = topicInput.value.trim() || 'Learning-Plan';
+        const filename = `${topic.replace(/\s+/g, '-')}-Learning-Plan.txt`;
+        
+        // Create a Blob with the content
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        // Create a temporary anchor element and trigger download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up the URL object
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading text file:', error);
+        alert('Error downloading learning plan. Please try again.');
+    }
+}
+
+// Download as PDF File
+async function downloadAsPDF() {
+    try {
+        const topic = topicInput.value.trim() || 'Learning-Plan';
+        const filename = `${topic.replace(/\s+/g, '-')}-Learning-Plan.pdf`;
+        
+        // Check if html2pdf is available
+        if (typeof html2pdf === 'undefined') {
+            alert('PDF generation library is loading. Please wait a moment and try again.');
+            return;
+        }
+
+        // Get the explanation section element (content to convert to PDF)
+        const element = explanationSection;
+        
+        // Configure PDF options
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Generate and download PDF
+        await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+        console.error('Error downloading PDF:', error);
+        alert('Error generating PDF. Please try again or use the text download option.');
+    }
 }
 
 // ============================================
@@ -186,6 +328,7 @@ async function generateExplanation() {
     const subject = subjectSelect.value;
     const level = levelSelect.value;
     const topic = topicInput.value.trim();
+    const learningGoal = learningGoalSelect.value;
 
     // Show output card and loading message
     outputCard.style.display = 'block';
@@ -203,21 +346,21 @@ async function generateExplanation() {
     setTimeout(() => {
         // TODO: Replace this with actual Gemini API call
         // For now, we're using sample responses
-        // const response = await callGeminiAPI(subject, level, topic);
-        // displayResponse(response, topic);
+        // const response = await callGeminiAPI(subject, level, topic, learningGoal);
+        // displayResponse(response, topic, learningGoal);
         
         // Using sample response for demonstration
-        displayResponse(subject, level, topic);
+        displayResponse(subject, level, topic, learningGoal);
 
         // Re-enable button
         generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Explanation';
+        generateBtn.textContent = 'Generate My Learning Plan';
     }, delay);
 }
 
 // Event Listener - Attach click handler to the generate button
 // Only initialize if we're on the learning assistant page
-if (generateBtn && subjectSelect && levelSelect && topicInput) {
+if (generateBtn && subjectSelect && levelSelect && topicInput && learningGoalSelect) {
     generateBtn.addEventListener('click', generateExplanation);
 
     // Optional: Allow Enter key in topic input to trigger generation
@@ -226,5 +369,17 @@ if (generateBtn && subjectSelect && levelSelect && topicInput) {
             generateExplanation();
         }
     });
+}
+
+// Download button event listeners
+const downloadTextBtn = document.getElementById('downloadTextBtn');
+const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+if (downloadTextBtn) {
+    downloadTextBtn.addEventListener('click', downloadAsText);
+}
+
+if (downloadPdfBtn) {
+    downloadPdfBtn.addEventListener('click', downloadAsPDF);
 }
 

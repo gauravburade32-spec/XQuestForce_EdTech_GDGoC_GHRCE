@@ -50,8 +50,19 @@
                 <input type="text" id="topic" class="form-control" placeholder="e.g., Quadratic Equations, Newton's Laws, Variables">
             </div>
 
+            <!-- Learning Goal Dropdown -->
+            <div class="form-group">
+                <label for="learningGoal">Learning Goal:</label>
+                <select id="learningGoal" class="form-control">
+                    <option value="">-- Select Learning Goal --</option>
+                    <option value="exam-preparation">Exam Preparation</option>
+                    <option value="skill-development">Skill Development</option>
+                    <option value="career-guidance">Career Guidance</option>
+                </select>
+            </div>
+
             <!-- Generate Button -->
-            <button id="generateBtn" class="btn-generate">Generate Explanation</button>
+            <button id="generateBtn" class="btn-generate">Generate My Learning Plan</button>
         </div>
 
         <!-- Output Card -->
@@ -61,25 +72,43 @@
             <!-- Loading Message -->
             <div id="loadingMessage" class="loading">
                 <div class="spinner"></div>
-                <p>Generating with Gemini AI...</p>
+                <p>Analyzing your learning needs using AI...</p>
             </div>
 
             <!-- AI Explanation Section -->
             <div id="explanationSection" style="display: none;">
+                <!-- Recommended Topics Section -->
                 <div class="explanation-box">
-                    <h3>Explanation</h3>
-                    <div id="explanation" class="content-text"></div>
+                    <h3>Recommended Topics</h3>
+                    <div id="recommendedTopics" class="content-text"></div>
                 </div>
 
-                <!-- Learning Tips Section -->
+                <!-- Suggested Resources Section -->
+                <div class="resources-box">
+                    <h3>Suggested Resources</h3>
+                    <div id="suggestedResources" class="content-text"></div>
+                </div>
+
+                <!-- Study Plan Section -->
                 <div class="tips-box">
-                    <h3>Learning Tips</h3>
-                    <ul id="tipsList" class="tips-list"></ul>
+                    <h3>Study Plan</h3>
+                    <div id="studyPlan" class="content-text"></div>
+                </div>
+
+                <!-- Download Button Section -->
+                <div class="download-section">
+                    <h3 class="download-heading">Download Learning Plan</h3>
+                    <div class="download-options">
+                        <button id="downloadTextBtn" class="btn-download-option">Download as Text</button>
+                        <button id="downloadPdfBtn" class="btn-download-option">Download as PDF</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- html2pdf.js library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Authentication Script - Handles logout -->
     <script src="auth.js"></script>
     <!-- Learning Assistant Script -->
